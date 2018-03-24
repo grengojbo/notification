@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
+	"github.com/jmoiron/sqlx/types"
 	"github.com/qor/admin"
 )
 
@@ -12,6 +13,9 @@ type Message struct {
 	To          interface{}
 	Title       string
 	Body        string
+	Val         types.NullJSONText
+	Pushed      string
+	State       string
 	MessageType string
 	ResolvedAt  *time.Time
 }
@@ -22,6 +26,9 @@ type QorNotification struct {
 	To          string
 	Title       string
 	Body        string `sql:"size:65532"`
+	Val         types.NullJSONText
+	Pushed      string
+	State       string
 	MessageType string
 	ResolvedAt  *time.Time
 }

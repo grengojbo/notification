@@ -12,6 +12,8 @@ import (
 
 type Config struct {
 	DB *gorm.DB
+	Locale string
+	Push bool
 }
 
 func New(config *Config) *Database {
@@ -33,11 +35,12 @@ func (database *Database) Send(message *notification.Message, context *qor.Conte
 		To:          database.getUserID(message.To, context),
 		Title:       message.Title,
 		Body:        message.Body,
+		Val: message.Val,
 		MessageType: message.MessageType,
 		ResolvedAt:  message.ResolvedAt,
 	}
 
-	return context.GetDB().Save(&notice).Error
+	return context.GetDB().Debug().Save(&notice).Error
 }
 
 func (database *Database) GetNotifications(user interface{}, results *notification.NotificationsResult, _ *notification.Notification, context *qor.Context) error {
@@ -61,7 +64,7 @@ func (database *Database) GetNotifications(user interface{}, results *notificati
 	}
 	offset := currentPage * perPage
 
-	commonDB := db.Order("created_at DESC").Where(fmt.Sprintf("%v = ?", db.Dialect().Quote("to")), to)
+	commonDB := db.Debug().Order("created_at DESC").Where(fmt.Sprintf("%v = ?", db.Dialect().Quote("to")), to)
 
 	// get unresolved notifications
 	if err := commonDB.Offset(offset).Limit(perPage).Find(&results.Notifications, fmt.Sprintf("%v IS NULL", db.Dialect().Quote("resolved_at"))).Error; err != nil {
@@ -90,7 +93,7 @@ func (database *Database) GetUnresolvedNotificationsCount(user interface{}, _ *n
 	var db = context.GetDB()
 
 	var result uint
-	db.Model(&notification.QorNotification{}).Where(fmt.Sprintf("%v = ? AND %v IS NULL", db.Dialect().Quote("to"), db.Dialect().Quote("resolved_at")), to).Count(&result)
+	db.Debug().Model(&notification.QorNotification{}).Where(fmt.Sprintf("%v = ? AND %v IS NULL", db.Dialect().Quote("to"), db.Dialect().Quote("resolved_at")), to).Count(&result)
 	return result
 }
 
@@ -101,7 +104,7 @@ func (database *Database) GetNotification(user interface{}, notificationID strin
 		db     = context.GetDB()
 	)
 
-	err := db.First(&notice, fmt.Sprintf("%v = ? AND %v = ?", db.Dialect().Quote("to"), db.Dialect().Quote("id")), to, notificationID).Error
+	err := db.Debug().First(&notice, fmt.Sprintf("%v = ? AND %v = ?", db.Dialect().Quote("to"), db.Dialect().Quote("id")), to, notificationID).Error
 	return &notice, err
 }
 
