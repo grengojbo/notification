@@ -14,6 +14,7 @@ type Message struct {
 	Title       string
 	Body        string
 	Val         types.NullJSONText
+	Link        string
 	Pushed      string
 	State       string
 	MessageType string
@@ -27,6 +28,7 @@ type QorNotification struct {
 	Title       string
 	Body        string `sql:"size:65532"`
 	Val         types.NullJSONText
+	Link        string
 	Pushed      string
 	State       string
 	MessageType string

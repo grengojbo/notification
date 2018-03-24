@@ -36,6 +36,7 @@ func (database *Database) Send(message *notification.Message, context *qor.Conte
 		Title:       message.Title,
 		Body:        message.Body,
 		Val: message.Val,
+		Link: message.Link,
 		MessageType: message.MessageType,
 		ResolvedAt:  message.ResolvedAt,
 	}
@@ -64,7 +65,7 @@ func (database *Database) GetNotifications(user interface{}, results *notificati
 	}
 	offset := currentPage * perPage
 
-	commonDB := db.Debug().Order("created_at DESC").Where(fmt.Sprintf("%v = ?", db.Dialect().Quote("to")), to)
+	commonDB := db.Debug().Order("created_at DESC").Where(fmt.Sprintf("%v = ? OR %v = ? ", db.Dialect().Quote("to"), db.Dialect().Quote("to")), to, "all")
 
 	// get unresolved notifications
 	if err := commonDB.Offset(offset).Limit(perPage).Find(&results.Notifications, fmt.Sprintf("%v IS NULL", db.Dialect().Quote("resolved_at"))).Error; err != nil {
@@ -93,7 +94,7 @@ func (database *Database) GetUnresolvedNotificationsCount(user interface{}, _ *n
 	var db = context.GetDB()
 
 	var result uint
-	db.Debug().Model(&notification.QorNotification{}).Where(fmt.Sprintf("%v = ? AND %v IS NULL", db.Dialect().Quote("to"), db.Dialect().Quote("resolved_at")), to).Count(&result)
+	db.Debug().Model(&notification.QorNotification{}).Where(fmt.Sprintf("(%v = ? OR %v = ?) AND %v IS NULL", db.Dialect().Quote("to"), db.Dialect().Quote("to"), db.Dialect().Quote("resolved_at")), to, "all").Count(&result)
 	return result
 }
 
@@ -104,7 +105,7 @@ func (database *Database) GetNotification(user interface{}, notificationID strin
 		db     = context.GetDB()
 	)
 
-	err := db.Debug().First(&notice, fmt.Sprintf("%v = ? AND %v = ?", db.Dialect().Quote("to"), db.Dialect().Quote("id")), to, notificationID).Error
+	err := db.Debug().First(&notice, fmt.Sprintf("(%v = ? OR %v = ?) AND %v = ?", db.Dialect().Quote("to"), db.Dialect().Quote("to"), db.Dialect().Quote("id")), to, "all", notificationID).Error
 	return &notice, err
 }
 
