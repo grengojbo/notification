@@ -18,20 +18,24 @@ type Message struct {
 	Pushed      string
 	State       string
 	MessageType string
+	UserID      uint
+	UserName    string
 	ResolvedAt  *time.Time
 }
 
 type QorNotification struct {
 	gorm.Model
 	From        string
-	To          string
+	To          string `gorm:"index"`
 	Title       string
 	Body        string `sql:"size:65532"`
 	Val         types.NullJSONText
 	Link        string
 	Pushed      string
-	State       string
-	MessageType string
+	State       string `gorm:"index"`
+	UserID      uint   `gorm:"index"`
+	UserName    string
+	MessageType string `gorm:"index"`
 	ResolvedAt  *time.Time
 }
 
