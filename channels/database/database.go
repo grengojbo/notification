@@ -41,7 +41,7 @@ func (database *Database) Send(message *notification.Message, context *qor.Conte
 		ResolvedAt:  message.ResolvedAt,
 	}
 
-	return context.GetDB().Debug().Save(&notice).Error
+	return context.GetDB().Save(&notice).Error
 }
 
 func (database *Database) GetNotifications(user interface{}, results *notification.NotificationsResult, _ *notification.Notification, context *qor.Context) error {
@@ -65,7 +65,7 @@ func (database *Database) GetNotifications(user interface{}, results *notificati
 	}
 	offset := currentPage * perPage
 
-	commonDB := db.Debug().Order("created_at DESC").Where(fmt.Sprintf("%v = ? OR %v = ? ", db.Dialect().Quote("to"), db.Dialect().Quote("to")), to, "all")
+	commonDB := db.Order("created_at DESC").Where(fmt.Sprintf("%v = ? OR %v = ? ", db.Dialect().Quote("to"), db.Dialect().Quote("to")), to, "all")
 
 	// get unresolved notifications
 	if err := commonDB.Offset(offset).Limit(perPage).Find(&results.Notifications, fmt.Sprintf("%v IS NULL", db.Dialect().Quote("resolved_at"))).Error; err != nil {
@@ -94,7 +94,7 @@ func (database *Database) GetUnresolvedNotificationsCount(user interface{}, _ *n
 	var db = context.GetDB()
 
 	var result uint
-	db.Debug().Model(&notification.QorNotification{}).Where(fmt.Sprintf("(%v = ? OR %v = ?) AND %v IS NULL", db.Dialect().Quote("to"), db.Dialect().Quote("to"), db.Dialect().Quote("resolved_at")), to, "all").Count(&result)
+	db.Model(&notification.QorNotification{}).Where(fmt.Sprintf("(%v = ? OR %v = ?) AND %v IS NULL", db.Dialect().Quote("to"), db.Dialect().Quote("to"), db.Dialect().Quote("resolved_at")), to, "all").Count(&result)
 	return result
 }
 
@@ -105,7 +105,7 @@ func (database *Database) GetNotification(user interface{}, notificationID strin
 		db     = context.GetDB()
 	)
 
-	err := db.Debug().First(&notice, fmt.Sprintf("(%v = ? OR %v = ?) AND %v = ?", db.Dialect().Quote("to"), db.Dialect().Quote("to"), db.Dialect().Quote("id")), to, "all", notificationID).Error
+	err := db.First(&notice, fmt.Sprintf("(%v = ? OR %v = ?) AND %v = ?", db.Dialect().Quote("to"), db.Dialect().Quote("to"), db.Dialect().Quote("id")), to, "all", notificationID).Error
 	return &notice, err
 }
 

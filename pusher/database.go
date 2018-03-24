@@ -29,5 +29,5 @@ func SendDB(message *notification.Message, db * gorm.DB) error {
 		notice.Link = message.Link
 	}
 
-	return db.Debug().Save(&notice).Error
+	return db.Save(&notice).Error
 }
