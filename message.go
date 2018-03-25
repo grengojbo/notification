@@ -32,7 +32,7 @@ type QorNotification struct {
 	Title       string
 	Body        string `sql:"size:65532"`
 	Val         types.NullJSONText
-	Link        string
+	Link        string `gorm:"index"`
 	Pushed      string
 	State       string `gorm:"index"`
 	Group       string `gorm:"index"`
