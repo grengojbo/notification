@@ -17,7 +17,9 @@ type Message struct {
 	Link        string
 	Pushed      string
 	State       string
+	Group       string
 	MessageType string
+	ItemID      uint
 	UserID      uint
 	UserName    string
 	ResolvedAt  *time.Time
@@ -33,7 +35,9 @@ type QorNotification struct {
 	Link        string
 	Pushed      string
 	State       string `gorm:"index"`
-	UserID      uint   `gorm:"index"`
+	Group       string `gorm:"index"`
+	ItemID      uint
+	UserID      uint `gorm:"index"`
 	UserName    string
 	MessageType string `gorm:"index"`
 	ResolvedAt  *time.Time
