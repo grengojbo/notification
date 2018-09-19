@@ -49,3 +49,4 @@ public/microsites/*
 vendor/*
 .DS_Store
 dev_env
+.idea
